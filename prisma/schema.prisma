@@ -12,3 +12,19 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model Product {
+  id     Int            @id @default(autoincrement())
+  name   String
+  price  Float
+  sku    String         @unique
+  stock  Int
+  pinned PinnedProduct?
+}
+
+model PinnedProduct {
+  id        Int     @id @default(autoincrement())
+  product   Product @relation(fields: [productId], references: [id])
+  productId Int     @unique
+  position  Int
+}
