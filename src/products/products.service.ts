@@ -48,7 +48,6 @@ export class ProductsService {
     );
 
     pinnedProducts.forEach((pinnedProduct) => {
-      console.log('pinnedProduct', pinnedProduct);
       unpinnedProducts.splice(pinnedProduct.pinPosition - 1, 0, pinnedProduct);
     });
 
@@ -119,8 +118,6 @@ export class ProductsService {
         pinPosition: null,
       },
     });
-
-    console.log(unpinnedRecord);
 
     return unpinnedRecord;
   }
