@@ -27,6 +27,7 @@ services:
       - db
     volumes:
       - ./src:/usr/src/app/src
+      - ./prisma:/usr/src/app/prisma
 
   pgadmin:
     image: dpage/pgadmin4
