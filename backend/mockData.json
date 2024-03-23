@@ -3,30 +3,40 @@
     "name": "Handcrafted Silver Necklace",
     "price": 49.99,
     "sku": "NECKLACE001",
-    "stock": 50
+    "stock": 50,
+    "isPinned": false,
+    "pinPosition": null
   },
   {
     "name": "Artisanal Copper Earrings",
     "price": 29.99,
     "sku": "EARRINGS001",
-    "stock": 30
+    "stock": 30,
+    "isPinned": false,
+    "pinPosition": null
   },
   {
     "name": "Handmade Gemstone Bracelet",
     "price": 39.99,
     "sku": "BRACELET001",
-    "stock": 40
+    "stock": 40,
+    "isPinned": false,
+    "pinPosition": null
   },
   {
     "name": "Bohemian Style Anklet",
     "price": 19.99,
     "sku": "ANKLET001",
-    "stock": 20
+    "stock": 20,
+    "isPinned": false,
+    "pinPosition": null
   },
   {
     "name": "Vintage-inspired Ring Set",
     "price": 34.99,
     "sku": "RING001",
-    "stock": 25
+    "stock": 25,
+    "isPinned": false,
+    "pinPosition": null
   }
 ]
