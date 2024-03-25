@@ -21,8 +21,6 @@ services:
     container_name: backend
     env_file:
       - .env
-    environment:
-      - PORT=${PORT}
     ports:
       - '3000:3000'
     depends_on:
