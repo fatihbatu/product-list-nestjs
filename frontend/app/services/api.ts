@@ -15,3 +15,7 @@ export const unpinProduct = async (
 ) => {
   await axiosInstance.put(`${url}/${arg.productId}`);
 };
+
+export const seedProduct = async (url: string) => {
+  await axiosInstance.post(url);
+};

@@ -1,4 +1,4 @@
-import { pinProduct, unpinProduct } from '@/app/services/api';
+import { pinProduct, unpinProduct, seedProduct } from '@/app/services/api';
 import { useProducts, useSortedProducts } from '@/app/services/queries';
 import useSWRMutation from 'swr/mutation';
 
@@ -22,6 +22,21 @@ export function useUnpinProduct() {
   const { mutate: sortMutate } = useSortedProducts();
 
   return useSWRMutation(`/products/unpin`, unpinProduct, {
+    onError() {
+      console.error('error');
+    },
+    onSuccess: () => {
+      mutate();
+      sortMutate();
+    },
+  });
+}
+
+export function useSeedProduct() {
+  const { mutate } = useProducts();
+  const { mutate: sortMutate } = useSortedProducts();
+
+  return useSWRMutation(`/products/seed`, seedProduct, {
     onError() {
       console.error('error');
     },
