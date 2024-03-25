@@ -17,6 +17,9 @@ export class ProductsService {
   constructor(private readonly databaseService: DatabaseService) {}
 
   async generateMock() {
+    if (await this.databaseService.product.count()) {
+      throw new ConflictException('Database already seeded');
+    }
     const filePath = path.resolve(__dirname, '../../mockData.json');
     const data = fs.readFileSync(filePath, 'utf8');
     const products = JSON.parse(data);
