@@ -1,12 +1,13 @@
 'use client';
 import { PinCard } from './../components/PinCard';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Button } from '@/app/ui/button';
 import { getProductsColumns } from './columns';
 import { DataTable } from './data-table';
 import { Product, Modal } from '@/app/types';
 import { useProducts, useSortedProducts } from '../services/queries';
 import { usePinProduct, useUnpinProduct } from '../services/mutations';
+import toast from 'react-hot-toast';
 
 const Products = () => {
   const { data, isValidating, isLoading: isLoadingProducts } = useProducts();
@@ -36,6 +37,7 @@ const Products = () => {
       },
     );
     setModal({ isVisible: false, product: null, position: '' });
+    toast.success(`${product.sku} pinned successfully`);
   };
 
   const unPinMutation = async (unPinnedProduct: Product) => {
@@ -71,6 +73,7 @@ const Products = () => {
 
   const onUnpin = (product: Product) => {
     unPinMutation(product);
+    toast.success(`${product.sku} unpinned successfully`);
   };
 
   const onPin = (product: Product) => {
@@ -87,40 +90,43 @@ const Products = () => {
 
   const columns = useMemo(() => getProductsColumns({ onUnpin, onPin }), []);
   const unoccupiedPositions = useMemo(getUnoccupiedPositions, [data]);
+
   return (
-    <section className="container mx-auto my-12 p-8 border border-gray-500 rounded-lg shadow-lg">
-      {isValidating ||
-      isLoadingProducts ||
-      isSortedValidating ||
-      isSortedLoading ? (
-        <p>Loading...</p>
-      ) : (
-        <>
-          <h1 className="text-2xl font-bold text-center mb-4">Products</h1>
-          <h2>
-            {isSorting
-              ? 'Products sorted by price'
-              : 'Products in their original order'}
-          </h2>
-          <PinCard
-            modal={modal}
-            setModal={setModal}
-            handleFieldValue={handleFieldValue}
-            pinMutation={pinMutation}
-            unoccupiedPositions={unoccupiedPositions}
-          />
-          <div className="flex flex-col items-end justify-center w-full flex-1 py-2 text-center">
-            <Button onClick={toggleSorting}>
-              {isSorting ? 'Unsort' : 'Sort by price'}
-            </Button>
-          </div>
-          <DataTable
-            columns={columns}
-            data={(isSorting ? sortedData : data) || []}
-          />
-        </>
-      )}
-    </section>
+    <>
+      <div className="flex justify-start px-16 py-8">
+        <a href="/">
+          <Button className="font-bold">Back</Button>
+        </a>
+      </div>
+      <h1 className="text-2xl font-bold text-center mb-4">Products</h1>
+      <section className="container mx-auto my-12 p-8 border border-gray-500 rounded-lg shadow-lg">
+        {isValidating ||
+        isLoadingProducts ||
+        isSortedValidating ||
+        isSortedLoading ? (
+          <p>Loading...</p>
+        ) : (
+          <>
+            <PinCard
+              modal={modal}
+              setModal={setModal}
+              handleFieldValue={handleFieldValue}
+              pinMutation={pinMutation}
+              unoccupiedPositions={unoccupiedPositions}
+            />
+            <div className="flex flex-col items-end justify-center w-full flex-1 py-2 text-center">
+              <Button onClick={toggleSorting}>
+                {isSorting ? 'Unsort' : 'Sort by price'}
+              </Button>
+            </div>
+            <DataTable
+              columns={columns}
+              data={(isSorting ? sortedData : data) || []}
+            />
+          </>
+        )}
+      </section>
+    </>
   );
 };
 
