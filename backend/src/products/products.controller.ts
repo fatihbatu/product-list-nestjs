@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Param, Post, Put, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+  Query,
+} from '@nestjs/common';
 import { ProductsService } from './products.service';
 
 type PinProductDto = {
@@ -12,6 +21,11 @@ export class ProductsController {
   @Post('seed')
   generateMock() {
     return this.productsService.generateMock();
+  }
+
+  @Delete('seed')
+  deleteAll() {
+    return this.productsService.deleteAll();
   }
 
   @Get()

@@ -28,8 +28,13 @@ export class ProductsService {
     return 'Seed successfully completed';
   }
 
+  async deleteAll() {
+    await this.databaseService.product.deleteMany({});
+    return 'All products deleted';
+  }
+
   async findAll(sort?: 'price' | 'name' | 'id') {
-    let products = await this.databaseService.product.findMany({
+    const products = await this.databaseService.product.findMany({
       orderBy: {
         [sort || 'id']: 'asc',
       },
