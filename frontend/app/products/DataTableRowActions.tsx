@@ -1,6 +1,7 @@
 import { Button } from '@/app/ui/button';
 import { Row } from '@tanstack/react-table';
 import React from 'react';
+import { Product } from '../types';
 
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>;
@@ -13,9 +14,10 @@ const DataTableRowActions = <TData,>({
   onUnpin,
   onPin,
 }: DataTableRowActionsProps<TData>) => {
+  const product = row.original as Product;
   return (
     <>
-      {row.original.isPinned ? (
+      {product.isPinned ? (
         <Button
           className="flex h-8 w-16 p-0 data-[state=open]:bg-muted"
           onClick={() => onUnpin(row.original)}
