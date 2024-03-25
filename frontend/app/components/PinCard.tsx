@@ -46,10 +46,10 @@ export function PinCard({
         modal.isVisible ? 'block' : 'hidden'
       }`}
     >
-      <Card className="min-w-[300px] max-w-[400px] w-1/2 h-1/2 bg-white p-4 rounded-lg shadow-lg">
+      <Card className="bg-white p-4 rounded-lg shadow-lg">
         <CardHeader>
           <CardTitle>
-            <div className="flex flex-column justify-between items-center">
+            <div className="flex flex-column justify-between items-center gap-16">
               <div>Set Pin for Product</div>
               <Button
                 className="cursor-pointer"
@@ -66,14 +66,14 @@ export function PinCard({
               </Button>
             </div>
           </CardTitle>
-          <CardDescription>Set the position for the product</CardDescription>
+          <CardDescription>{modal.product?.sku}</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="flex justify-center items-center">
           <Select onValueChange={handleFieldValue}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Available positions" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="w-[180px]">
               {unoccupiedPositions.map((position) => (
                 <SelectItem
                   key={position}
@@ -94,6 +94,7 @@ export function PinCard({
         </CardContent>
         <CardFooter>
           <Button
+            className="w-full"
             onClick={() => {
               pinMutation(modal.product as Product, modal.position as string);
             }}
