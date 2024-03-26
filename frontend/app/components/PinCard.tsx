@@ -95,6 +95,7 @@ export function PinCard({
         <CardFooter>
           <Button
             className="w-full"
+            disabled={!modal.position}
             onClick={() => {
               pinMutation(modal.product as Product, modal.position as string);
             }}
