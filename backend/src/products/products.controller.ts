@@ -29,8 +29,13 @@ export class ProductsController {
   }
 
   @Get()
-  findAll(@Query('sort') sort?: string) {
-    return this.productsService.findAll(sort);
+  findAll(
+    @Query('sort') sort?: string,
+    @Query('minPrice') minPrice?: string,
+    @Query('maxPrice') maxPrice?: string,
+    @Query('stock') stock?: string,
+  ) {
+    return this.productsService.findAll(sort, minPrice, maxPrice, stock);
   }
 
   @Put('pin/:productId')

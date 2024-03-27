@@ -7,6 +7,7 @@ import {
 import { DatabaseService } from 'src/database/database.service';
 import * as fs from 'fs';
 import * as path from 'path';
+import { PrismaClientValidationError } from '@prisma/client/runtime/library';
 
 type PinProductDto = {
   position: number;
@@ -36,33 +37,78 @@ export class ProductsService {
     return 'All products deleted';
   }
 
-  async findAll(sort?: string) {
-    const products = await this.databaseService.product.findMany({
-      orderBy: {
-        [sort || 'id']: 'asc',
-      },
-    });
+  async findAll(
+    sort?: string,
+    minPrice?: string,
+    maxPrice?: string,
+    stock?: string,
+  ) {
+    try {
+      const additionalParameters: any = {};
 
-    if (!products.length) {
-      throw new NotFoundException('No products found');
+      if (minPrice && maxPrice) {
+        additionalParameters['price'] = {
+          gte: Number(minPrice),
+          lte: Number(maxPrice),
+        };
+      } else if (minPrice && !maxPrice) {
+        additionalParameters['price'] = {
+          gte: Number(minPrice),
+        };
+      } else if (maxPrice && !minPrice) {
+        additionalParameters['price'] = {
+          lte: Number(maxPrice),
+        };
+      }
+
+      if (stock) {
+        additionalParameters['stock'] = {
+          gt: Number(stock),
+        };
+      }
+
+      const products = await this.databaseService.product.findMany({
+        where: additionalParameters,
+        orderBy: {
+          [sort || 'id']: 'asc',
+        },
+      });
+
+      if (!products.length) {
+        throw new NotFoundException('No products found');
+      }
+
+      const pinnedProducts = [...products]
+        .filter((product) => product.isPinned)
+        .sort((a, b) => a.pinPosition - b.pinPosition);
+
+      const unpinnedProducts = [...products].filter(
+        (product) => !product.isPinned,
+      );
+
+      pinnedProducts.forEach((pinnedProduct) => {
+        unpinnedProducts.splice(
+          pinnedProduct.pinPosition - 1,
+          0,
+          pinnedProduct,
+        );
+      });
+
+      return unpinnedProducts;
+    } catch (error) {
+      console.log(error);
+      if (error instanceof NotFoundException) {
+        throw new NotFoundException('No products found');
+      } else if (error instanceof PrismaClientValidationError) {
+        throw new BadRequestException('Invalid sort parameter');
+      } else {
+        throw new Error('Internal server error');
+      }
     }
-
-    const pinnedProducts = [...products]
-      .filter((product) => product.isPinned)
-      .sort((a, b) => a.pinPosition - b.pinPosition);
-
-    const unpinnedProducts = [...products].filter(
-      (product) => !product.isPinned,
-    );
-
-    pinnedProducts.forEach((pinnedProduct) => {
-      unpinnedProducts.splice(pinnedProduct.pinPosition - 1, 0, pinnedProduct);
-    });
-
-    return unpinnedProducts;
   }
 
   async pinProduct(productId: number, pinProductDto: PinProductDto) {
+    console.log(typeof pinProductDto.position);
     if (!pinProductDto.position || pinProductDto.position < 1) {
       throw new BadRequestException('Missing required field');
     }
