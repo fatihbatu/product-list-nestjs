@@ -36,7 +36,7 @@ export class ProductsService {
     return 'All products deleted';
   }
 
-  async findAll(sort?: 'price' | 'name' | 'id') {
+  async findAll(sort?: string) {
     const products = await this.databaseService.product.findMany({
       orderBy: {
         [sort || 'id']: 'asc',

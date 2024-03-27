@@ -29,7 +29,7 @@ export class ProductsController {
   }
 
   @Get()
-  findAll(@Query('sort') sort?: 'price' | 'name' | 'id') {
+  findAll(@Query('sort') sort?: string) {
     return this.productsService.findAll(sort);
   }
 
