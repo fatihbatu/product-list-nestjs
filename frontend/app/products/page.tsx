@@ -1,64 +1,61 @@
 'use client';
-import { PinCard } from './../components/PinCard';
-import { useEffect, useMemo, useState } from 'react';
+import { FilterBoard } from '../FilterBoard';
+import { PinCard } from '../components/PinCard';
+import { useMemo, useState } from 'react';
 import { Button } from '@/app/ui/button';
 import { getProductsColumns } from './columns';
 import { DataTable } from './data-table';
 import { Product, Modal } from '@/app/types';
-import { useProducts, useSortedProducts } from '../services/queries';
-import { usePinProduct, useUnpinProduct } from '../services/mutations';
-import toast from 'react-hot-toast';
+import {
+  useGetProductsQuery,
+  usePinProductMutation,
+  useUnPinProductMutation,
+} from '../features/product/api/apiSlice';
+import { Switch } from '../ui/switch';
 
-const Products = () => {
-  const { data, isValidating, isLoading: isLoadingProducts } = useProducts();
-  const {
-    data: sortedData,
-    isValidating: isSortedValidating,
-    isLoading: isSortedLoading,
-  } = useSortedProducts();
-
-  const { trigger: pinTrigger, isMutating: isPinMutating } = usePinProduct();
-  const { trigger: unpinTrigger, isMutating: isUnpinMutating } =
-    useUnpinProduct();
-
+const Home = () => {
+  const [minPrice, setMinPrice] = useState<number>(0);
+  const [maxPrice, setMaxPrice] = useState<number | undefined>();
   const [isSorting, setIsSorting] = useState<boolean>(false);
+  const [isStockFilter, setIsStockFilter] = useState<boolean>(false);
+  const [query, setQuery] = useState<{
+    sort?: string;
+    stock?: boolean;
+    minPrice?: number;
+    maxPrice?: number;
+  }>({
+    sort: '',
+    stock: false,
+    minPrice: 0,
+    maxPrice: undefined,
+  });
+  const {
+    isError: error,
+    isLoading: loading,
+    isSuccess: success,
+    data: products,
+    refetch,
+  } = useGetProductsQuery({ ...query }, { refetchOnMountOrArgChange: true });
+
+  const [pinProduct] = usePinProductMutation();
+  const [unPinProduct] = useUnPinProductMutation();
+
   const [modal, setModal] = useState<Modal>({
     isVisible: false,
     product: null,
     position: '',
   });
 
-  const pinMutation = async (product: Product, position: string) => {
-    pinTrigger(
-      { position: Number(position), productId: product.id },
-      {
-        optimisticData: data && [...data, product],
-        rollbackOnError: true,
-      },
-    );
-    setModal({ isVisible: false, product: null, position: '' });
-    toast.success(`${product.sku} pinned successfully`);
-  };
-
-  const unPinMutation = async (unPinnedProduct: Product) => {
-    unpinTrigger(
-      {
-        productId: unPinnedProduct.id,
-      },
-      {
-        optimisticData:
-          data && data.filter((product) => product.id !== unPinnedProduct.id),
-        rollbackOnError: true,
-      },
-    );
-    setModal({ isVisible: false, product: null, position: '' });
-  };
-
   const getUnoccupiedPositions = () => {
-    if (!data) return [];
-    const pinnedPositions = data.map((product: Product) => product.pinPosition);
+    if (!products) return [];
+    const pinnedPositions = products.map(
+      (product: Product) => product.pinPosition,
+    );
 
-    const allPositions = Array.from({ length: data.length }, (_, i) => i + 1);
+    const allPositions = Array.from(
+      { length: products.length },
+      (_, i) => i + 1,
+    );
 
     const filteredPositions = allPositions.filter(
       (position) => !pinnedPositions.includes(position),
@@ -68,16 +65,16 @@ const Products = () => {
   };
 
   const toggleSorting = () => {
+    // refetch({ sort: !isSorting, minPrice, maxPrice });
     setIsSorting((prevSorting) => !prevSorting);
-  };
-
-  const onUnpin = (product: Product) => {
-    unPinMutation(product);
-    toast.success(`${product.sku} unpinned successfully`);
   };
 
   const onPin = (product: Product) => {
     setModal({ isVisible: true, product, position: '' });
+  };
+
+  const onUnpin = (product: Product) => {
+    unPinProduct(product.id);
   };
 
   const handleFieldValue = (value: string) => {
@@ -88,41 +85,53 @@ const Products = () => {
     }));
   };
 
+  const handlePinProduct = (productId: number, position: number) => {
+    pinProduct({ productId: productId, position: position });
+    setModal({ isVisible: false, product: null, position: '' });
+  };
+
+  const handleFilterChange = () => {
+    setQuery({
+      sort: isSorting ? 'price' : '',
+      stock: isStockFilter,
+      minPrice,
+      maxPrice,
+    });
+  };
+
   const columns = useMemo(() => getProductsColumns({ onUnpin, onPin }), []);
-  const unoccupiedPositions = useMemo(getUnoccupiedPositions, [data]);
+  const unoccupiedPositions = useMemo(getUnoccupiedPositions, [products]);
 
   return (
     <>
-      <div className="flex justify-start px-16 py-8">
-        <a href="/">
-          <Button className="font-bold">Back</Button>
-        </a>
-      </div>
       <h1 className="text-2xl font-bold text-center mb-4">Products</h1>
       <section className="container mx-auto my-12 p-8 border border-gray-500 rounded-lg shadow-lg">
-        {isValidating ||
-        isLoadingProducts ||
-        isSortedValidating ||
-        isSortedLoading ? (
+        {loading ? (
           <p>Loading...</p>
+        ) : error ? (
+          <p>Error: {error || 'Unknown error'}</p>
         ) : (
           <>
             <PinCard
               modal={modal}
               setModal={setModal}
               handleFieldValue={handleFieldValue}
-              pinMutation={pinMutation}
+              pinMutation={handlePinProduct}
               unoccupiedPositions={unoccupiedPositions}
             />
-            <div className="flex flex-col items-end justify-center w-full flex-1 py-2 text-center">
-              <Button onClick={toggleSorting}>
-                {isSorting ? 'Unsort' : 'Sort by price'}
-              </Button>
-            </div>
-            <DataTable
-              columns={columns}
-              data={(isSorting ? sortedData : data) || []}
+            <FilterBoard
+              minPrice={minPrice}
+              setMinPrice={setMinPrice}
+              maxPrice={maxPrice}
+              setMaxPrice={setMaxPrice}
+              isStockFilter={isStockFilter}
+              setIsStockFilter={setIsStockFilter}
+              isSorting={isSorting}
+              setIsSorting={setIsSorting}
+              handleFilterChange={handleFilterChange}
             />
+            <div className=" h-2 rounded-full mb-4 bg-gray-500"></div>
+            <DataTable columns={columns} data={products || []} />
           </>
         )}
       </section>
@@ -130,4 +139,4 @@ const Products = () => {
   );
 };
 
-export default Products;
+export default Home;
