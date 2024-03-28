@@ -37,7 +37,7 @@ export function PinCard({
     }>
   >;
   handleFieldValue: (value: string) => void;
-  pinMutation: (product: Product, position: string) => void;
+  pinMutation: (productId: number, position: number) => void;
   unoccupiedPositions: string[];
 }) {
   return (
@@ -97,7 +97,7 @@ export function PinCard({
             className="w-full"
             disabled={!modal.position}
             onClick={() => {
-              pinMutation(modal.product as Product, modal.position as string);
+              pinMutation(Number(modal.product?.id), Number(modal.position));
             }}
           >
             Pin
