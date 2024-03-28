@@ -19,7 +19,7 @@
     "name": "Handmade Gemstone Bracelet",
     "price": 39.99,
     "sku": "BRACELET001",
-    "stock": 40,
+    "stock": 0,
     "isPinned": false,
     "pinPosition": null
   },
@@ -35,7 +35,7 @@
     "name": "Vintage-inspired Ring Set",
     "price": 34.99,
     "sku": "RING001",
-    "stock": 25,
+    "stock": 0,
     "isPinned": false,
     "pinPosition": null
   }
