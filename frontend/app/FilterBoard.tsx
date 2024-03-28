@@ -25,7 +25,7 @@ export function FilterBoard({
   return (
     <div className="flex justify-end items-center gap-4 mb-8">
       <p className="text-lg font-bold">Filter&Sort Options</p>
-      <div className="flex gap-4 border border-gray-500 rounded-md p-4 w-full items-center justify-between">
+      <div className="flex sm:flex-row flex-col sm:justify-start gap-4 border border-gray-500 rounded-md p-4 w-full items-center justify-between">
         <div className="flex items-center gap-4">
           <p className="text-sm">Sort by price:</p>
           <div className="flex gap-4">
