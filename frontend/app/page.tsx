@@ -2,16 +2,16 @@
 import { FilterBoard } from './FilterBoard';
 import { PinCard } from './components/PinCard';
 import { useMemo, useState } from 'react';
-import { Button } from '@/app/ui/button';
 import { getProductsColumns } from './(products)/columns';
 import { DataTable } from './(products)/data-table';
 import { Product, Modal } from '@/app/types';
 import {
   useGetProductsQuery,
   usePinProductMutation,
+  useSeedMutation,
   useUnPinProductMutation,
 } from './features/product/api/apiSlice';
-import { Switch } from './ui/switch';
+import { Button } from './ui/button';
 
 const Home = () => {
   const [minPrice, setMinPrice] = useState<number>(0);
@@ -39,6 +39,7 @@ const Home = () => {
 
   const [pinProduct] = usePinProductMutation();
   const [unPinProduct] = useUnPinProductMutation();
+  const [seed] = useSeedMutation();
 
   const [modal, setModal] = useState<Modal>({
     isVisible: false,
@@ -62,11 +63,6 @@ const Home = () => {
     );
 
     return filteredPositions.map((position) => String(position));
-  };
-
-  const toggleSorting = () => {
-    // refetch({ sort: !isSorting, minPrice, maxPrice });
-    setIsSorting((prevSorting) => !prevSorting);
   };
 
   const onPin = (product: Product) => {
@@ -103,13 +99,21 @@ const Home = () => {
   const unoccupiedPositions = useMemo(getUnoccupiedPositions, [products]);
 
   return (
-    <>
-      <h1 className="text-2xl font-bold text-center mb-4">Products</h1>
+    <div className="flex flex-col items-center justify-start min-h-screen py-2 bg-gray-200">
+      <div className="flex items-center justify-around w-full bg-gray-200 p-4 mb-4">
+        <h1 className="text-2xl font-bold text-center mb-4">Products List</h1>
+        <Button
+          onClick={() => seed()}
+          disabled={Boolean(loading) || Boolean(products?.length)}
+        >
+          Seed Database
+        </Button>
+      </div>
       <section className="container mx-auto my-12 p-8 border border-gray-500 rounded-lg shadow-lg">
         {loading ? (
           <p>Loading...</p>
         ) : error ? (
-          <p>Error: {error || 'Unknown error'}</p>
+          <p>Error: Something went wrong</p>
         ) : (
           <>
             <PinCard
@@ -135,7 +139,7 @@ const Home = () => {
           </>
         )}
       </section>
-    </>
+    </div>
   );
 };
 

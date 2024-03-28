@@ -12,7 +12,6 @@ export const apiSlice = createApi({
       { sort?: string; stock?: string; minPrice?: number; maxPrice?: number }
     >({
       query: (arg) => {
-        console.log(arg);
         const queryString = new URLSearchParams({
           ...(arg?.sort && { sort: 'price' }),
           ...(arg?.stock && { stock: '0' }),
@@ -22,6 +21,10 @@ export const apiSlice = createApi({
         return `/products?${queryString.toString()}`;
       },
       providesTags: ['Product'],
+      transformErrorResponse: (response) => {
+        console.log(response);
+        return response;
+      },
     }),
     pinProduct: builder.mutation<
       Product,
@@ -41,6 +44,13 @@ export const apiSlice = createApi({
       }),
       invalidatesTags: ['Product'],
     }),
+    seed: builder.mutation<void, void>({
+      query: () => ({
+        url: '/products/seed',
+        method: 'POST',
+      }),
+      invalidatesTags: ['Product'],
+    }),
   }),
 });
 
@@ -48,4 +58,5 @@ export const {
   useGetProductsQuery,
   usePinProductMutation,
   useUnPinProductMutation,
+  useSeedMutation,
 } = apiSlice;
