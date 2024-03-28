@@ -1,17 +1,17 @@
 'use client';
-import { FilterBoard } from '../FilterBoard';
-import { PinCard } from '../components/PinCard';
+import { FilterBoard } from './FilterBoard';
+import { PinCard } from './components/PinCard';
 import { useMemo, useState } from 'react';
 import { Button } from '@/app/ui/button';
-import { getProductsColumns } from './columns';
-import { DataTable } from './data-table';
+import { getProductsColumns } from './(products)/columns';
+import { DataTable } from './(products)/data-table';
 import { Product, Modal } from '@/app/types';
 import {
   useGetProductsQuery,
   usePinProductMutation,
   useUnPinProductMutation,
-} from '../features/product/api/apiSlice';
-import { Switch } from '../ui/switch';
+} from './features/product/api/apiSlice';
+import { Switch } from './ui/switch';
 
 const Home = () => {
   const [minPrice, setMinPrice] = useState<number>(0);
